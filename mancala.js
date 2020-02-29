@@ -11,21 +11,6 @@ let game = {
  his: [ [3,3,3,0,3,3,3,0,0] ]
 }
 
-function calc_sow(pos, i){
- let p = pos.slice();
- const o = p[8]<<2;
- const j = i + o;
- const pj = p[j];
- p[j] = 0;
- for (let c = 1; c <= pj; c++){
-  p[(j+c)&7] += 1;
- }
- if ((p[o]|p[o+1]|p[o+2]) == 0 || ((j+pj+1)&3) != 0){
-  p[8] = 1 - p[8];
- }
- return p;
-}
-
 function enc(pos){
  const p = pos.slice(0,3).concat(pos.slice(4,7)).concat([pos[8]]);
  return p.map(c => String.fromCharCode(c+48)).join("");
@@ -39,24 +24,32 @@ function is_valid_move(pos, i){
  return (! is_gameover(pos) ) && ( (i>>2) == pos[8] ) && ( pos[i] );
 }
 
-function sow(side, i){
- if (! is_valid_move( game.current_pos, (side<<2)+i) ){
-  return false;
+function calc_sow(pos, i){
+ let p = pos.slice();
+ const o = i>>2;
+ const pi = p[i];
+ p[i] = 0;
+ for (let c = 1; c <= pi; c++){
+  p[(i+c)&7] += 1;
  }
- const p = calc_sow(game.current_pos, i);
- game.his.push(p.slice());
- game.current_pos = p;
- update_fields();
+ if ((p[o]|p[o+1]|p[o+2]) == 0 || ((i+pi+1)&3) != 0){
+  p[8] = 1 - p[8];
+ }
+ return p;
 }
 
-function wayback(){
- if(game.his.length == 1){
-  return false;
+function update_msg(){
+ for( let i = 0; i < 7; i++ ){
+  if(i == 3){ continue; }
+  if( is_valid_move(game.current_pos, i) ){
+   const prophecy = db[enc(calc_sow(game.current_pos, i))];
+   const result = ((prophecy&1) == (i>>2)) ? "WIN" : "LOSE";
+   const count = (prophecy>>1) + 1;
+   game.msg_area[i].innerText = result + " (" + count + ") ";
+  } else {
+   game.msg_area[i].innerText = "";
+  }
  }
- game.his.pop();
- game.current_pos = game.his.slice(-1)[0];
- update_fields();
- return false;
 }
 
 function update_fields(){
@@ -78,25 +71,39 @@ function update_fields(){
  }
 }
 
-function update_msg(){
- for( let i = 0; i < 7; i++ ){
-  if(i == 3){ continue; }
-  if( is_valid_move(game.current_pos, i) ){
-   const prophecy = db[enc(calc_sow(game.current_pos, (i&3)))];
-   const result = ((prophecy&1) == (i>>2)) ? "WIN" : "LOSE";
-   const count = (prophecy>>1) + 1;
-   game.msg_area[i].innerText = result + " (" + count + ") ";
-  } else {
-   game.msg_area[i].innerText = "";
-  }
+function set_pos(pos){
+ game.current_pos = pos;
+ game.his.push(pos.slice());
+ update_fields();
+}
+
+function sow(i){
+ if( is_valid_move(game.current_pos, i) ){
+  set_pos(calc_sow(game.current_pos, i));
+ } else {
+  return false;
  }
+}
+
+function wayback(){
+ if(game.his.length == 1){
+  return false;
+ }
+ game.his.pop();
+ game.current_pos = game.his.slice(-1)[0];
+ update_fields();
 }
 
 function reset(){
  game.current_pos = [3,3,3,0,3,3,3,0,0];
  game.his = [ [3,3,3,0,3,3,3,0,0] ];
  update_fields();
- return false;
+}
+
+function set_his(his){
+ game.current_pos = his[his.length-1];
+ game.his = his;
+ update_fields();
 }
 
 window.onload = function(){
