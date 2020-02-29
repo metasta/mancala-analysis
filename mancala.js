@@ -26,7 +26,7 @@ function is_valid_move(pos, i){
 
 function calc_sow(pos, i){
  let p = pos.slice();
- const o = i>>2;
+ const o = i&4;
  const pi = p[i];
  p[i] = 0;
  for (let c = 1; c <= pi; c++){
