@@ -1,12 +1,12 @@
 import sys
-import PositionTable
-enc_pos = PositionTable.positions
+import mpos
+mpos = mpos.mpos
 
 def dec(p):
   l = [ord(c)-48 for c in p]
   return tuple(l[:3] + [0] + l[3:6] + [0] + [l[6]])
 
-pos = set(map(dec, enc_pos))
+pos = set(map(dec, mpos))
 
 def move(position, i):
   p = list(position)

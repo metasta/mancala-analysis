@@ -1,5 +1,8 @@
-db.js: analysis.py PositionTable.py
+db.py: db.js
+	sed -e 's/const //g' db.js > db.py
+
+db.js: analysis.py mpos.py
 	python3 analysis.py | sed -e 's/ //g' -e 's/{/const db = {/g' > db.js
 
-PositionTable.py: posgen.py
-	python3 posgen.py > PositionTable.py
+mpos.py: posgen.py
+	python3 posgen.py > mpos.py

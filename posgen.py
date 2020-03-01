@@ -13,7 +13,6 @@ def move(position, i):
     p[8] = 1 - p[8]
   return tuple(p)
 
-# generate all branch of p
 def posgen(p):
   pos.add(p)
   if (p[0]|p[1]|p[2] == 0) or (p[4]|p[5]|p[6] == 0):
@@ -34,7 +33,7 @@ def minify(ps):
 
 pos = set()
 posgen((3,3,3,0,3,3,3,0,0))
-minified = minify(pos)
-print('positions = ', end='')
-print(minified)
-print("%d positions generated" % len(minified), file=sys.stderr)
+mpos = minify(pos)
+print('mpos = ', end='')
+print(mpos)
+print("%d positions generated" % len(mpos), file=sys.stderr)
